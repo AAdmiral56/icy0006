@@ -477,6 +477,18 @@ pred <- predict(linearReg, df_test)
 output <- rbind(df_test, pred)
 summary(df_train)
 summary(output)
+RSS <- c(crossprod(output$Ash))
+RSS0 <- c(crossprod(df_train$Ash))
+print(RSS)
+print(RSS0)
+MSE <- RSS / length(output$Ash)
+MSE0 <- RSS0 / length(df_train$Ash)
+print(MSE)
+print(MSE0)
+RMSE <- sqrt(MSE)
+RMSE0 <- sqrt(MSE0)
+print(RMSE)
+print(RMSE0)
 x <- output$`Wine class`
 y <- output$`OD280/OD315`
 plot(x, y, main = "wine class vs OD280/OD315",
