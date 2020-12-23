@@ -378,29 +378,29 @@ abline(lm(y ~ x, data = wine_classes), col = "blue")
 linearReg <- lm(x ~ y, data=wine_classes)   
 print(linearReg)
 #------STAGE 4----------------VIKINGLOTTO-----------------------------------
-print(((5/6)*choose(6,1)*choose(42,5))/choose(48,6))
+print(((5/6)*choose(6,1)*choose(42,5))/choose(48,6)) #1-0
 
-print(((1/6)*choose(6,1)*choose(42,5))/choose(48,6))
+print(((1/6)*choose(6,1)*choose(42,5))/choose(48,6)) #1-1
 
-print(((5/6)*choose(6,2)*choose(42,4))/choose(48,6))
+print(((5/6)*choose(6,2)*choose(42,4))/choose(48,6)) #2-0
 
-print(((1/6)*choose(6,2)*choose(42,4))/choose(48,6))
+print(((1/6)*choose(6,2)*choose(42,4))/choose(48,6)) #2-1
 
-print(((5/6)*choose(6,3)*choose(42,3))/choose(48,6))
+print(((5/6)*choose(6,3)*choose(42,3))/choose(48,6)) #3-0
 
-print(((1/6)*choose(6,3)*choose(42,3))/choose(48,6))
+print(((1/6)*choose(6,3)*choose(42,3))/choose(48,6)) #3-1
 
-print(((5/6)*choose(6,4)*choose(42,2))/choose(48,6))
+print(((5/6)*choose(6,4)*choose(42,2))/choose(48,6)) #4-0
 
-print(((1/6)*choose(6,4)*choose(42,2))/choose(48,6))
+print(((1/6)*choose(6,4)*choose(42,2))/choose(48,6)) #4-1
 
-print(((5/6)*choose(6,5)*choose(42,1))/choose(48,6))
+print(((5/6)*choose(6,5)*choose(42,1))/choose(48,6)) #5-0
 
-print(((1/6)*choose(6,5)*choose(42,1))/choose(48,6))
+print(((1/6)*choose(6,5)*choose(42,1))/choose(48,6)) #5-1
 
-print(((5/6)*choose(6,6)*choose(42,0))/choose(48,6))
+print(((5/6)*choose(6,6)*choose(42,0))/choose(48,6)) #6-0
 
-print(((1/6)*choose(6,6)*choose(42,0))/choose(48,6))
+print(((1/6)*choose(6,6)*choose(42,0))/choose(48,6)) #6-1
 
 #------STAGE 5-------------------------------------(Packages here may or may not install by calling them as a library but they install just fine by hand in 'Tools'-----------------------
 install.packages("dplyr")
