@@ -473,24 +473,29 @@ abline(lm(y ~ x, data = df_train), col = "blue")
 linearReg <- lm(y ~ x, data=df_train)   
 print(linearReg)
 #Step 3
+install.packages(MLmetrics)
+library(MLmetrics)
+print(df_test)
+print(linearReg)
+summary(linearReg)$r.squared
+AIC(linearReg)
+BIC(linearReg)
+res_plot <- plot(linearReg$residuals, col="blue", lwd=2, ylab="Residuals", las=1, main ='Residuals:wine class vs OD280/OD315')
 pred <- predict(linearReg, df_test)
-output <- rbind(df_test, pred)
-summary(df_train)
-summary(output)
-RSS <- c(crossprod(output$Ash))
-RSS0 <- c(crossprod(df_train$Ash))
-print(RSS)
-print(RSS0)
-MSE <- RSS / length(output$Ash)
-MSE0 <- RSS0 / length(df_train$Ash)
-print(MSE)
-print(MSE0)
-RMSE <- sqrt(MSE)
-RMSE0 <- sqrt(MSE0)
-print(RMSE)
-print(RMSE0)
-x <- output$`Wine class`
-y <- output$`OD280/OD315`
+pred_frame <- data.frame(cbind(actuals=df_test$`OD280/OD315`, predicteds=pred))
+summary(pred)
+summary(pred_frame)
+correlation_accuracy <- cor(pred_frame)
+print(correlation_accuracy)
+min_max_accuracy <- mean(apply(pred_frame, 1, min) / apply(pred_frame, 1, max))
+mape <- mean(abs((pred_frame$predicteds - pred_frame$actuals))/pred_frame$actuals)
+RMSE(pred_frame$predicteds, pred_frame$actuals)
+MAE(pred_frame$predicteds, pred_frame$actuals)
+print(min_max_accuracy)
+print(mape)
+
+x <- pred_frame$predicteds
+y <- pred_frame$actuals
 plot(x, y, main = "wine class vs OD280/OD315",
      xlab = "wine class", ylab = "OD280/OD315",
      pch = 19, frame = FALSE)
