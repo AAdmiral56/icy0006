@@ -1,0 +1,9 @@
+- name: He who fails to prepare prepares to fail
+  import_playbook: headstart.yaml
+
+- name: Setup HAProxy and containerised HAProxy Prometheus exporter
+  hosts: haproxy
+  become: yes
+  roles:
+    - haproxy
+  tags: haproxy

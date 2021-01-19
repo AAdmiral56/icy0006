@@ -1,0 +1,51 @@
+---
+- name: Install MySQL exporter
+  apt:
+    name: prometheus-mysqld-exporter
+    state: latest
+
+- name: Create MySQL exporter user
+  mysql_user:
+    name: "{{ mysql_exporter_user }}"
+    password: "{{ mysql_exporter_pass }}"
+    priv: "*.*:PROCESS,REPLICATION CLIENT,SELECT"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  no_log: true
+
+- name: Create Prometheus user
+  user:
+    name: prometheus
+    create_home: yes
+    state: present
+
+- name: Create Prometheus directory
+  file:
+    path: /home/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name: Configure MySQL exporter
+  template:
+    src: my.cnf.j2
+    dest: /var/lib/prometheus/.my.cnf
+    owner: prometheus
+    group: prometheus
+    mode: '0400'
+  notify: Restart MySQL exporter
+
+# Before starting the service - run handlers
+
+- name: Execute handlers preemptively
+  meta: flush_handlers
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: Check if the service is started and if it is not, start it
+  service:
+    name: prometheus-mysqld-exporter
+    state: started
+    enabled: yes

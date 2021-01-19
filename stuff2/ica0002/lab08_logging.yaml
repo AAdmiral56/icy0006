@@ -1,0 +1,24 @@
+---
+- name: He who fails to prepare prepares to fail
+  import_playbook: headstart.yaml
+
+- name: Install InfluxDB and Telegraf
+  hosts: influxdb
+  gather_facts: false
+  become: yes
+  roles:
+    - influxdb
+
+- name: Configure Rsyslog
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - rsyslog
+
+- name: Transfer and setup pinger script
+  hosts: pinger
+  gather_facts: false
+  become: yes
+  roles:
+    - pinger

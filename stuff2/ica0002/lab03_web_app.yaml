@@ -1,0 +1,13 @@
+---
+- name: He who fails to prepare prepares to fail
+  import_playbook: headstart.yaml
+
+# Commented out since Lab 12 - Docker
+- name: Web app
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+#    - agama
+#    - uwsgi
+    - nginx

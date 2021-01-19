@@ -1,0 +1,10 @@
+---
+- name: He who fails to prepare prepares to fail
+  import_playbook: headstart.yaml
+
+- name: Configure backup facilities and upload of backups
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - backup

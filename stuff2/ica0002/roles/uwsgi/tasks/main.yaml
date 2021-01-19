@@ -1,0 +1,24 @@
+---
+- name: Install uWSGI
+  apt:
+    name:
+      - uwsgi
+      - uwsgi-plugin-python3
+    state: latest
+
+- name: Install PyMySQL for uWSGI
+  apt:
+    name: python3-pymysql
+    state: latest
+
+- name: Add the uWSGI configuration
+  template: 
+    src: agama.ini
+    dest: /etc/uwsgi/apps-enabled/agama.ini
+  notify: Restart uWSGI
+
+- name: Check uWSGI (is started)
+  service:
+    name: uwsgi
+    state: started
+    enabled: yes

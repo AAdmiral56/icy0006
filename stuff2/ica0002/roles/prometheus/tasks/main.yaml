@@ -1,0 +1,48 @@
+---
+- name: Install Prometheus
+  apt:
+    name: prometheus
+    state: latest
+
+# Old config
+
+#- name: Duplicate Prometheus' service configration
+#  copy:
+#    src: /lib/systemd/system/prometheus.service
+#    dest: /etc/systemd/system/
+#    remote_src: yes
+
+#- name: Configure Prometheus' web path
+#  lineinfile:
+#    dest: /etc/systemd/system/prometheus.service
+#    regex: 'ExecStart='
+#    line: "ExecStart=/usr/bin/prometheus $ARGS --web.external-url=http://vm1.{{ domain_name }}{{ top_level_domain }}:11480/prometheus"
+#    state: present
+#  notify: Restart Prometheus
+
+- name: Configure Prometheus' web path
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify: Restart Prometheus 
+
+- name: Configure Prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /etc/prometheus/prometheus.yml
+  notify: Restart Prometheus
+
+# Before starting the service - run handlers
+
+- name: Execute handlers preemptively
+  meta: flush_handlers
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: Check if the service is started and if it is not, start it
+  service:
+    name: prometheus
+    state: started
+    enabled: yes

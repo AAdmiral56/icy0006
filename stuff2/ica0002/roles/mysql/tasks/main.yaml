@@ -1,0 +1,64 @@
+---
+- name: Install MySQL
+  apt: 
+    name: mysql-server
+    state: latest
+
+- name: Override MySQL configuration
+#  copy: - was used before 11th lab
+  template:
+    src: override.cnf
+    dest: /etc/mysql/mysql.conf.d/
+  notify: Restart MySQL
+
+- name: Install PyMySQL for MySQL
+  apt: 
+    name: python3-pymysql
+    state: latest
+
+- name: Create MySQL database
+  mysql_db:
+    name: "{{ mysql_database }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create application user
+  mysql_user:
+    name: "{{ mysql_user }}"
+    password: "{{ mysql_password }}"
+    priv: "{{ mysql_database }}.*:ALL"
+    host: "%"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  no_log: true
+
+# Modifications since 11th lab - MySQL High Availability
+# Automation of replication on the replica host since the Final lab; not a part of the course
+
+- name: Create MySQL replication user
+  mysql_user:
+    name: "{{ mysql_replication_user }}"
+    password: "{{ mysql_replication_pass }}"
+    priv: "*.*:REPLICATION SLAVE"
+    host: "%"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  no_log: true
+  notify:
+    - Stop MySQL slave thread
+    - Change MySQL master thread to use replication
+    - Reset MySQL slave thread
+    - Reset MySQL slave thread
+    - Start MySQL slave thread
+
+# Before modification of the MySQL threads - run handlers
+
+- name: Execute handlers preemptively
+  meta: flush_handlers
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: Check if the service is started and if it is not, start it
+  service:
+    name: mysql
+    state: started
+    enabled: yes

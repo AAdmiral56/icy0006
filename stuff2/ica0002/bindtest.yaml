@@ -1,0 +1,24 @@
+- name: agama
+  hosts: application
+  become: yes
+  roles:
+    - agama_docker
+    
+- name: DNS servers
+  hosts: application
+  become: yes
+  roles:
+    - bind
+    
+- name: DNS
+  hosts: application
+  become: yes
+  roles:
+    - bind_exporter
+
+- name: Nginx Exporter
+  hosts: application
+  become: yes
+  gather_facts: no
+  roles:
+    - nginx_exporter

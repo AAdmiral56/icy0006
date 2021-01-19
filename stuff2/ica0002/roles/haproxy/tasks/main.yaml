@@ -1,0 +1,51 @@
+---
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    state: latest
+
+- name: Configure HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: Restart HAProxy
+
+- name: start HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Setup HAProxy exporter on VMs
+  docker_container:
+    name: haproxy_exporter
+    image: quay.io/prometheus/haproxy-exporter:v0.9.0
+    ports:
+      - "{{ docker_haproxy_exporter_port }}:9101"
+    command: --haproxy.scrape-uri="http://{{ inventory_hostname }}:{{ haproxy_port }}/haproxy?stats;csv"
+    restart_policy: always
+
+- name: start HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Execute handlers preemptively
+  meta: flush_handlers
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: start HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+    
+#- name: Turn off haproxy exporter
+ # shell: docker stop haproxy_exporter
+  
+#- name: Turn off haproxy exporter
+ # shell: docker start haproxy_exporter

@@ -1,0 +1,20 @@
+---
+- name: He who fails to prepare prepares to fail
+  import_playbook: headstart.yaml
+
+- name: Database server
+  hosts: db_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - mysql
+
+# Commented out since Lab 12 - Docker
+- name: Web app
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+#    - agama
+#    - uwsgi
+    - nginx

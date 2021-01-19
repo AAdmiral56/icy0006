@@ -1,0 +1,84 @@
+---
+- name: install bind9
+  become: yes
+  apt:
+    name: 
+      - bind9
+      - python3-dnspython
+    state: latest
+    update_cache: yes
+
+- name: Configure DNS forwarders, access rules and master zone
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify: restart dns
+
+- name: Bind zone config
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify:
+    - restart dns
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Bind slave zone config
+  template:
+    src: named.conf.local.slave.j2
+    dest: /etc/bind/named.conf.local
+  notify:
+    - restart dns
+  when: inventory_hostname in groups['dns_slaves']
+  
+- name: Configure master zone
+  template:
+    src: db.adattiva.j2
+    dest: /var/lib/bind/db.{{ startup_name }}
+  notify: 
+    - Rndc reload
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Add A record
+  nsupdate:
+    key_algorithm: "hmac-sha256"
+    key_name: "dns_update"
+    key_secret: "{{ ns_update_secret }}"
+    server: "{{ hostvars[groups['dns_masters'][0]]['ansible_default_ipv4']['address'] }}"
+    zone: "{{ domain }}"
+    record: "{{ item['subdomain'] }}.{{ domain }}"
+    value: "{{ item['ip'] }}"
+    type: "A"
+  loop: "{{ a_record }}"
+  when: inventory_hostname == groups['dns_masters'][0]
+ # vars:
+  #   ns_update_secret: !vault |
+   #       $ANSIBLE_VAULT;1.1;AES256
+    #      36393663343437653933353530653065353338616237343033363735303363616636656462396434
+     #     3137373765306132353764623966313564363535653230370a626133393337363131646434633732
+      #    37646364336431373832386334646530306634316364623138366662623331356361373538663433
+       #   6130646232303039330a616364643965643265653466333562643635356639646266646662386535
+        #  38396165663761616631646532396430336138623064626232663738353631636532
+
+- name: Add CNAME record
+  nsupdate:
+    key_algorithm: "hmac-sha256"
+    key_name: "dns_update"
+    key_secret: "{{ ns_update_secret }}"
+    server: "{{ hostvars[groups['dns_masters'][0]]['ansible_default_ipv4']['address'] }}"
+    zone: "{{ domain }}"
+    record: "{{ item['cname'] }}.{{ domain }}"
+    value: "{{ item['real'] }}.{{ domain }}"
+    type: "CNAME"
+  loop: "{{ dns_cnames }}"
+  when: inventory_hostname == groups['dns_masters'][0]
+
+- name: Execute handlers
+  meta: flush_handlers
+
+- name: Ensure that bind9 is started and enabled
+  become: yes
+  service:
+    name: bind9
+    enabled: yes
+    state: started
+
